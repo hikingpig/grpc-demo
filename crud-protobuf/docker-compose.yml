@@ -1,0 +1,130 @@
+version: '3'
+
+services:
+  client1:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client1
+    restart: unless-stopped
+    expose:
+      - 80
+      - 8081
+      - 8080
+    ports:
+      - 8081
+    volumes:
+      - ./client:/home/node/client
+      - dist:/home/node/client/dist
+      - node_modules:/home/node/client/node_modules
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.7
+    command: node httpserver.js
+
+  client2:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client2
+    restart: unless-stopped
+    expose:
+      - 8081
+      - 80
+      - 8080
+    ports:
+      - 8081
+    volumes:
+      - ./client:/home/node/client
+      - dist:/home/node/client/dist
+      - node_modules:/home/node/client/node_modules
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.8
+    command: node httpserver.js
+
+  haproxy:
+    image: haproxy:1.7
+    container_name: haproxy
+    ports:
+      - 80:80
+    expose:
+      - 80
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.9
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+  envoy:
+    build:
+      context: ./client
+      dockerfile: envoy.Dockerfile
+    container_name: envoy
+    restart: unless-stopped
+    expose:
+      - 8080
+      - 50051
+    ports:
+      - 8080:8080
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.2
+      
+  cassandra:
+    build:
+      context: ./cassandra
+      dockerfile: Dockerfile
+    container_name: cassandra
+    restart: unless-stopped
+    expose:
+      - 7000
+      - 7001
+      - 7199
+      - 9042
+      - 9160
+    ulimits:
+      memlock: -1
+      nproc: 32768
+      nofile: 100000
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.3
+
+  grpc-server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    container_name: grpc-server
+    expose:
+      - 50051
+    restart: unless-stopped
+    depends_on: 
+      - cassandra
+      - redis
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.4
+    command: go run server.go
+
+  redis:
+    image: "redis:alpine"
+    restart: unless-stopped
+    container_name: redis
+    expose:
+      - 6379
+    networks:
+      grpc-demo-network:
+        ipv4_address: 192.168.0.5
+
+networks:
+  grpc-demo-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/16
+
+volumes:
+  node_modules:  
+  dist:  

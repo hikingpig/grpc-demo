@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>gRPC-Web Example </title>
+<div id="container">
+  <h1>User gRPC Service HAHA</h1>
+  <div id="dashboard">
+
+    <form>
+      <p>Show the account information you want to insert
+        <p>
+          <input id="firstname" type="text" placeholder="First Name">
+          <input id="lastname" type="text" placeholder="Last Name">
+    </form>
+    <button type="button" id="create">Create!</button>
+
+    <form>
+      <p>Show the ID of account you want to view
+        <p>
+          <input id="userid" type="text" placeholder="User ID">
+    </form>
+    <button type="button" id="get">Get!</button>
+
+    <form>
+      <p>Show the account information you want to update
+        <p>
+          <input id="userid-u" type="text" placeholder="Account ID">
+          <input id="firstname-u" type="text" placeholder="First Name">
+          <input id="lastname-u" type="text" placeholder="Last Name">
+    </form>
+    <button type="button" id="update">Update!</button>
+
+
+    <form>
+      <p>Show the ID of account you want to delete
+        <p>
+          <input id="userid-d" type="text" placeholder="Account ID">
+    </form>
+    <button type="button" id="deleteUser">Delete!</button>
+
+  </div>
+
+<!-- How to show result? put it in another div?   -->
+
+  <div id="result">Result
+  </div>
+
+</div>
+<script src="./dist/main.js"></script>
+</head>
+<body>
+</body>
+</html>
